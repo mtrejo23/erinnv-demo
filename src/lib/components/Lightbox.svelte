@@ -4,6 +4,8 @@
 	
 	let { 
 		src, 
+		srcset = '',
+		sizes = '',
 		alt, 
 		caption = '',
 		onclose, 
@@ -14,6 +16,8 @@
 		direction = 'none'
 	}: { 
 		src: string; 
+		srcset?: string;
+		sizes?: string;
 		alt: string; 
 		caption?: string;
 		onclose: () => void; 
@@ -54,9 +58,12 @@
 	<div class="h-[80vh] w-full flex items-center justify-center overflow-hidden relative mx-16" onclick={(e) => e.stopPropagation()}>
 		{#key src + direction}
 			<img 
-				{src} 
+				{src}
+				srcset={srcset}
+				sizes={sizes}
 				{alt} 
 				class="max-w-full max-h-[80vh] object-contain absolute"
+				loading="eager"
 				in:fly={{ x: direction === 'next' ? 300 : direction === 'prev' ? -300 : 0, duration: direction === 'none' ? 0 : 300, easing: cubicOut }}
 			/>
 		{/key}

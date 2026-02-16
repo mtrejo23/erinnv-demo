@@ -1,8 +1,19 @@
 <script lang="ts">
 	import Lightbox from './Lightbox.svelte';
 
+	function buildSrcset(baseUrl: string, widths: number[]): string {
+		return widths.map(w => {
+			const separator = baseUrl.includes('?') ? '&' : '?';
+			return `${baseUrl}${separator}w=${w} ${w}w`;
+		}).join(', ');
+	}
+
+	const defaultSrcset = buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-07-1.jpg', [400, 800, 1200, 1600, 2000]);
+
 	interface Image {
 		src: string;
+		srcset?: string;
+		sizes?: string;
 		alt: string;
 		caption: string;
 	}
@@ -16,36 +27,50 @@
 	const images = propImages || [
 		{
 			src: 'https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-07-1.jpg',
+			srcset: buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-07-1.jpg', [400, 800, 1200, 1600, 2000]),
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: 'Kensey Table - Smoked Silver Leaf',
 			caption: 'Shown in Smoked Silver Leaf with Antiqued Drawer Front Detail, Hand Hammered Polished Nickel Pull'
 		},
 		{
 			src: 'https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-01-1.jpg',
+			srcset: buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-01-1.jpg', [400, 800, 1200, 1600, 2000]),
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: 'Kensey Table - Smoked Silver Leaf',
 			caption: 'Shown in Smoked Silver Leaf with Antiqued Drawer Front Detail, Hand Hammered Polished Nickel Pull'
 		},
 		{
 			src: 'https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-02.jpg',
+			srcset: buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-02.jpg', [400, 800, 1200, 1600, 2000]),
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: 'Kensey Table - Smoked Silver Leaf',
 			caption: 'Shown in Smoked Silver Leaf with Antiqued Drawer Front Detail, Hand Hammered Polished Nickel Pull'
 		},
 		{
 			src: 'https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-03.jpg',
+			srcset: buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-03.jpg', [400, 800, 1200, 1600, 2000]),
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: 'Kensey Table - Smoked Silver Leaf',
 			caption: 'Shown in Smoked Silver Leaf with Antiqued Drawer Front Detail, Hand Hammered Polished Nickel Pull'
 		},
 		{
 			src: 'https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-04.jpg',
+			srcset: buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-04.jpg', [400, 800, 1200, 1600, 2000]),
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: 'Kensey Table - Smoked Silver Leaf',
 			caption: 'Shown in Smoked Silver Leaf with Antiqued Drawer Front Detail, Hand Hammered Polished Nickel Pull'
 		},
 		{
 			src: 'https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-05.jpg',
+			srcset: buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-05.jpg', [400, 800, 1200, 1600, 2000]),
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: 'Kensey Table - Two Drawers',
 			caption: 'Shown in Two Drawers in Smoked Silver Leaf with Antiqued Drawer Front Detail, Hand Hammered Polished Nickel Pull'
 		},
 		{
 			src: 'https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-06-1.jpg',
+			srcset: buildSrcset('https://wp.erinnv.com/wp-content/uploads/2021/07/kensey-table-06-1.jpg', [400, 800, 1200, 1600, 2000]),
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: 'Kensey Table - Smoked Silver Leaf',
 			caption: 'Shown in Smoked Silver Leaf with Antiqued Drawer Front Detail, Hand Hammered Polished Nickel Pull'
 		}
@@ -94,7 +119,14 @@
 			onclick={() => openLightbox(i)}
 		>
 			<div class="product-image">
-				<img src={image.src} alt={image.alt} class="w-full h-auto block hover:opacity-95 transition-opacity" />
+				<img 
+					src={image.src} 
+					srcset={image.srcset} 
+					sizes={image.sizes}
+					alt={image.alt} 
+					class="w-full h-auto block hover:opacity-95 transition-opacity" 
+					loading={i < 2 ? 'eager' : 'lazy'}
+				/>
 			</div>
 			<figcaption class="text-gray-500 text-sm mt-3 leading-relaxed">{image.caption}</figcaption>
 		</button>

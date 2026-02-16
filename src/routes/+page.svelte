@@ -2,7 +2,7 @@
 	import ProductGallery from '$lib/components/ProductGallery.svelte';
 	import ProductSidebar from '$lib/components/ProductSidebar.svelte';
 	import Lightbox from '$lib/components/Lightbox.svelte';
-	import { urlFor } from '$lib/sanity';
+	import { urlFor, responsiveSrcset, srcsetUrl } from '$lib/sanity';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -15,6 +15,8 @@
 		if (!data.product?.productImages) return [];
 		return data.product.productImages.map((img: any) => ({
 			src: img.image ? urlFor(img.image).width(1200).url() : '',
+			srcset: img.image ? responsiveSrcset(img.image) : '',
+			sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
 			alt: img.caption || '',
 			caption: img.caption || ''
 		}));
@@ -22,7 +24,7 @@
 
 	function getFinishImages() {
 		if (!data.product?.finishOptions) return [];
-		const finishes: Array<{ name: string; image: string; category: string }> = [];
+		const finishes: Array<{ name: string; image: string; srcset: string; sizes: string; category: string }> = [];
 		data.product.finishOptions.forEach((opt: any) => {
 			const finishCollection = opt.finishReference;
 			const collectionTitle = finishCollection?.title?.toLowerCase() || '';
@@ -34,6 +36,8 @@
 						finishes.push({ 
 							name: f.name, 
 							image: f.image ? urlFor(f.image).width(1200).url() : '',
+							srcset: f.image ? responsiveSrcset(f.image) : '',
+							sizes: '(max-width: 768px) 50vw, 33vw',
 							category
 						});
 					}
@@ -54,7 +58,7 @@
 		return 'Other';
 	}
 
-	function getFinishesByCategory(finishes: Array<{ name: string; image: string; category: string }>) {
+	function getFinishesByCategory(finishes: Array<{ name: string; image: string; srcset: string; sizes: string; category: string }>) {
 		return {
 			Oak: finishes.filter(f => f.category === 'Oak'),
 			Walnut: finishes.filter(f => f.category === 'Walnut'),
@@ -197,7 +201,7 @@
 								{#each categoryFinishes as finish, index}
 									<button class="text-center cursor-pointer" onclick={() => openFinishLightbox(category, index)}>
 										{#if finish.image}
-											<img src={finish.image} alt={finish.name} class="w-full aspect-square object-cover border border-gray-200 hover:opacity-90 transition-opacity" />
+											<img src={finish.image} srcset={finish.srcset} sizes={finish.sizes} alt={finish.name} class="w-full aspect-square object-cover border border-gray-200 hover:opacity-90 transition-opacity" loading="lazy" />
 										{:else}
 											<div class="w-full aspect-square bg-gray-100 border border-gray-200"></div>
 										{/if}
@@ -219,7 +223,9 @@
 
 {#if currentFinish}
 	<Lightbox 
-		src={currentFinish.image} 
+		src={currentFinish.image}
+		srcset={currentFinish.srcset}
+		sizes={currentFinish.sizes}
 		alt={currentFinish.name}
 		caption={currentFinish.name}
 		onclose={closeFinishLightbox}

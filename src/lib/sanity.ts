@@ -104,3 +104,26 @@ export interface FinishItem {
   image: any;
   category: string;
 }
+
+const responsiveWidths = [400, 800, 1200, 1600, 2000];
+
+export interface ResponsiveImageOptions {
+  source: any;
+  defaultWidth?: number;
+}
+
+export function srcsetUrl(source: any, width: number): string {
+  return builder.image(source).width(width).auto('format').url();
+}
+
+export function responsiveSrcset(source: any): string {
+  return responsiveWidths.map(w => `${srcsetUrl(source, w)} ${w}w`).join(', ');
+}
+
+export function responsiveSizes(): string {
+  return '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw';
+}
+
+export function responsiveSizesFinish(): string {
+  return '(max-width: 768px) 50vw, 33vw';
+}
