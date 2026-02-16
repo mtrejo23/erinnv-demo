@@ -77,6 +77,7 @@
 	];
 
 	let selectedIndex = $state<number | null>(null);
+	let currentSlide = $state(0);
 	let direction = $state<'next' | 'prev' | 'none'>('none');
 
 	function openLightbox(index: number) {
@@ -102,6 +103,16 @@
 		}
 	}
 
+	function prevSlide() {
+		direction = 'prev';
+		currentSlide = currentSlide > 0 ? currentSlide - 1 : images.length - 1;
+	}
+
+	function nextSlide() {
+		direction = 'next';
+		currentSlide = currentSlide < images.length - 1 ? currentSlide + 1 : 0;
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (selectedIndex === null) return;
 		if (e.key === 'ArrowLeft') prevImage();
@@ -112,7 +123,66 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Mobile Slider -->
+<div class="mobile-slider md:hidden">
+	<div class="relative">
+		<button 
+			class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+			onclick={prevSlide}
+			aria-label="Previous image"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+			</svg>
+		</button>
+		
+		<div class="overflow-hidden">
+			{#key currentSlide + direction}
+				<div class="slider-track" class:slide-left={direction === 'next'} class:slide-right={direction === 'prev'}>
+					<button 
+						class="w-full cursor-pointer"
+						onclick={() => openLightbox(currentSlide)}
+					>
+						<div class="product-image">
+							<img 
+								src={images[currentSlide].src} 
+								srcset={images[currentSlide].srcset} 
+								sizes={images[currentSlide].sizes}
+								alt={images[currentSlide].alt} 
+								class="w-full h-auto block"
+								loading="eager"
+							/>
+						</div>
+						<figcaption class="text-gray-500 text-sm mt-3 leading-relaxed">{images[currentSlide].caption}</figcaption>
+					</button>
+				</div>
+			{/key}
+		</div>
+		
+		<button 
+			class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+			onclick={nextSlide}
+			aria-label="Next image"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+			</svg>
+		</button>
+	</div>
+	
+	<div class="flex justify-center gap-2 mt-4">
+		{#each images as _, i}
+			<button 
+				class="w-2 h-2 rounded-full transition-colors {i === currentSlide ? 'bg-gray-800' : 'bg-gray-300'}"
+				onclick={() => { currentSlide = i; direction = 'none'; }}
+				aria-label="Go to image {i + 1}"
+			></button>
+		{/each}
+	</div>
+</div>
+
+<!-- Desktop Grid -->
+<div class="hidden md:grid md:grid-cols-2 gap-8">
 	{#each images as image, i}
 		<button 
 			class="{i === 0 ? 'md:col-span-2' : ''} text-left cursor-pointer"
@@ -161,5 +231,43 @@
 	}
 	figcaption {
 		text-align: center;
+	}
+
+	.mobile-slider {
+		position: relative;
+		
+		.slider-track {
+			transition: transform 0.3s ease-out;
+		}
+		
+		.slide-left {
+			animation: slideInLeft 0.3s ease-out;
+		}
+		
+		.slide-right {
+			animation: slideInRight 0.3s ease-out;
+		}
+	}
+
+	@keyframes slideInLeft {
+		from {
+			transform: translateX(100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
+	}
+
+	@keyframes slideInRight {
+		from {
+			transform: translateX(-100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
 	}
 </style>
